@@ -37,14 +37,23 @@ def get_colors(msg):
         max_tokens=200,
     )
 
-    colors = json.loads(response.choices[0].message.content)
+    content = response.choices[0].message.content.strip()
+
+    if content.startswith("```json"):
+        content = content[7:]  # Remove "```json\n"
+    if content.endswith("```"):
+        content = content[:-3]  # Remove "```"
+
+    colors = json.loads(content)
 
     return colors
+
 
 
 @app.route("/palette", methods=["POST"])
 def prompt_to_palette():
     query = request.form.get("query")
+
     colors = get_colors(query)
     return {"colors": colors}
 
